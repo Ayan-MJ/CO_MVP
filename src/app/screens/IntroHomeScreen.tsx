@@ -1,101 +1,19 @@
 import React from 'react';
-import { Sparkles, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Sparkles, Calendar, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { IntroCard, IntroCardData, CountdownTimer } from '@/app/components/IntroCard';
 import { TopBar } from '@/app/components/Navigation';
+import { Banner, EmptyState, LoadingSkeleton } from '@/app/components/Feedback';
+import { useIntros } from '@/app/hooks/useIntros';
 
 interface IntroHomeScreenProps {
   onIntroClick: (intro: IntroCardData) => void;
   onBack?: () => void;
 }
 
-// Mock data - in real app this would come from API
-const mockIntros: IntroCardData[] = [
-  {
-    id: 'intro-1',
-    userId: 'user-1',
-    name: 'Sophie',
-    age: 29,
-    photos: [
-      'https://images.unsplash.com/photo-1758598304332-94b40ce7c7b4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b21hbiUyMHBvcnRyYWl0JTIwbmF0dXJhbCUyMGxpZ2h0fGVufDF8fHx8MTc2OTc1Mzc3M3ww&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjB3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2OTc1Mzc3M3ww&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjB3b21hbiUyMHBvcnRyYWl0fGVufDF8fHx8MTc2OTc1Mzc3M3ww&ixlib=rb-4.1.0&q=80&w=1080',
-    ],
-    location: 'Brooklyn, NY',
-    occupation: 'Product Designer',
-    education: 'Cornell University',
-    height: '5\'7"',
-    lifeMapHighlight: 'Building a life where Sunday mornings are for farmers markets and deep conversations over coffee',
-    matchReasons: [
-      'Both value intentional relationships over casual dating',
-      'Shared interest in sustainable living and local community',
-      'Similar communication styles: thoughtful, direct, emotionally aware',
-    ],
-    watchOuts: [
-      'She prioritizes work-life balance; may need advance planning for spontaneous trips',
-    ],
-    trustScore: 94,
-    verified: true,
-    expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
-  },
-  {
-    id: 'intro-2',
-    userId: 'user-2',
-    name: 'Marcus',
-    age: 32,
-    photos: [
-      'https://images.unsplash.com/photo-1758599543126-59e3154d7195?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBwb3J0cmFpdCUyMG91dGRvb3JzfGVufDF8fHx8MTc2OTc2OTAzM3ww&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBwb3J0cmFpdHxlbnwxfHx8fDE3Njk3NjkwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    ],
-    location: 'Manhattan, NY',
-    occupation: 'Management Consultant',
-    education: 'MIT',
-    height: '6\'1"',
-    lifeMapHighlight: 'Looking for someone who gets excited about trying new restaurants and discussing big ideas late into the night',
-    matchReasons: [
-      'Both see relationships as partnerships for personal growth',
-      'Match on core values: curiosity, authenticity, adventure',
-      'Complementary strengths: you bring stability, he brings spontaneity',
-    ],
-    watchOuts: [
-      'Recently relocated for work; still building his local community',
-      'High career ambition may require flexibility during busy seasons',
-    ],
-    trustScore: 88,
-    verified: true,
-    expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000),
-  },
-  {
-    id: 'intro-3',
-    userId: 'user-3',
-    name: 'Elena',
-    age: 27,
-    photos: [
-      'https://images.unsplash.com/photo-1666980226747-bf29624ae485?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHNtaWxpbmclMjBjYXN1YWwlMjBwb3J0cmFpdHxlbnwxfHx8fDE3Njk3NjkwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHNtaWxpbmclMjBjYXN1YWwlMjBwb3J0cmFpdHxlbnwxfHx8fDE3Njk3NjkwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      'https://images.unsplash.com/photo-1488716820095-cbe80883c496?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHNtaWxpbmclMjBjYXN1YWwlMjBwb3J0cmFpdHxlbnwxfHx8fDE3Njk3NjkwMzN8MA&ixlib=rb-4.1.0&q=80&w=1080',
-    ],
-    location: 'Queens, NY',
-    occupation: 'UX Researcher',
-    education: 'Stanford University',
-    height: '5\'5"',
-    lifeMapHighlight: 'Creating a life filled with creativity, meaningful work, and people who inspire me to be better',
-    matchReasons: [
-      'Aligned on wanting children within the next 3-5 years',
-      'Both value emotional intelligence and open communication',
-      'Strong overlap in lifestyle preferences and weekend activities',
-    ],
-    watchOuts: [
-      'Values quality time; may need reassurance during busy work periods',
-    ],
-    trustScore: 91,
-    verified: true,
-    expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000),
-  },
-];
-
 export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) {
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const { intros, isLoading, error, refresh } = useIntros();
 
   // Calculate a 72-hour refresh window
   const getNextRefresh = () => {
@@ -138,10 +56,73 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
     }
   };
 
+  React.useEffect(() => {
+    if (currentIndex >= intros.length) {
+      setCurrentIndex(0);
+    }
+  }, [currentIndex, intros.length]);
+
+  const renderLoadingState = () => (
+    <div className="flex-1 overflow-y-auto">
+      <div className="p-4 space-y-4">
+        <div className="text-center pt-2 pb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-border-primary/30 mb-3">
+            <Calendar className="w-4 h-4 text-text-muted" />
+            <span className="text-[var(--text-caption)] text-text-muted font-normal">
+              {formatWeekRange()}
+            </span>
+          </div>
+          <h1 className="text-[var(--text-title-1)] font-bold text-text-primary mb-2">
+            Loading introductions
+          </h1>
+          <p className="text-[var(--text-callout)] text-text-secondary max-w-sm mx-auto">
+            We’re fetching this week’s curated matches.
+          </p>
+        </div>
+        <CountdownTimer targetDate={nextRefresh} label="Introductions refresh in 72h" />
+        <LoadingSkeleton variant="intro" />
+        <LoadingSkeleton variant="intro" />
+      </div>
+    </div>
+  );
+
+  const renderErrorState = () => (
+    <div className="flex-1 overflow-y-auto p-4">
+      <div className="space-y-4">
+        <Banner
+          type="error"
+          message={error ?? 'We hit a snag loading introductions.'}
+          action={{ label: 'Retry', onClick: refresh }}
+        />
+        <EmptyState
+          icon={<AlertCircle className="w-6 h-6" />}
+          title="Unable to load introductions"
+          description="Check your connection and try again. We’ll keep your place saved."
+          action={{ label: 'Try again', onClick: refresh }}
+        />
+      </div>
+    </div>
+  );
+
+  const renderEmptyState = () => (
+    <div className="flex-1 overflow-y-auto p-4">
+      <EmptyState
+        icon={<Sparkles className="w-6 h-6" />}
+        title="No introductions yet"
+        description="We’re still curating thoughtful matches for you. Check back soon for new introductions."
+        action={{ label: 'Refresh', onClick: refresh }}
+      />
+    </div>
+  );
+
   return (
     <div className="flex flex-col h-full bg-background">
       {onBack && <TopBar title="Introductions" onBack={onBack} />}
 
+      {isLoading && renderLoadingState()}
+      {!isLoading && error && renderErrorState()}
+      {!isLoading && !error && intros.length === 0 && renderEmptyState()}
+      {!isLoading && !error && intros.length > 0 && (
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-4">
           {/* Header */}
@@ -156,7 +137,7 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
               This Week's Introductions
             </h1>
             <p className="text-[var(--text-callout)] text-text-secondary max-w-sm mx-auto">
-              We've carefully selected {mockIntros.length} people we think you'll genuinely connect with
+              We've carefully selected {intros.length} people we think you'll genuinely connect with
             </p>
           </div>
 
@@ -185,7 +166,7 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
                 {currentIndex + 1}
               </span>
               <span className="text-[var(--text-caption)] text-text-muted">
-                of {mockIntros.length}
+                of {intros.length}
               </span>
             </div>
           </div>
@@ -203,7 +184,7 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
               <ChevronLeft className="w-5 h-5 text-text-primary" />
             </button>
           )}
-          {currentIndex < mockIntros.length - 1 && (
+          {currentIndex < intros.length - 1 && (
             <button
               onClick={() => scrollToIndex(currentIndex + 1)}
               className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-background/80 backdrop-blur-sm border border-border-primary flex items-center justify-center shadow-lg hover:bg-background transition-colors"
@@ -223,7 +204,7 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
               WebkitOverflowScrolling: 'touch',
             }}
           >
-            {mockIntros.map((intro) => (
+            {intros.map((intro) => (
               <div
                 key={intro.id}
                 className="flex-shrink-0 w-full snap-center px-2"
@@ -237,7 +218,7 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
 
         {/* Pagination Dots */}
         <div className="flex items-center justify-center gap-2 py-6">
-          {mockIntros.map((intro, index) => (
+          {intros.map((intro, index) => (
             <button
               key={intro.id}
               onClick={() => scrollToIndex(index)}
@@ -260,6 +241,7 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
           </div>
         </div>
       </div>
+      )}
     </div>
   );
 }

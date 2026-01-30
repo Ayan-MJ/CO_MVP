@@ -2,7 +2,7 @@ import React from 'react';
 import { CheckCircle, XCircle, Clock, Camera, AlertTriangle } from 'lucide-react';
 import { Button } from '@/app/components/Button';
 import { TopBar } from '@/app/components/Navigation';
-import { LoadingSkeleton } from '@/app/components/Feedback';
+import { InlineError, LoadingSkeleton } from '@/app/components/Feedback';
 
 interface VerificationInProgressProps {
   onBack: () => void;
@@ -99,9 +99,10 @@ export function VerificationSuccessScreen({ onContinue }: VerificationSuccessPro
 interface VerificationFailureProps {
   onRetry: () => void;
   onSupport: () => void;
+  errorMessage?: string;
 }
 
-export function VerificationFailureScreen({ onRetry, onSupport }: VerificationFailureProps) {
+export function VerificationFailureScreen({ onRetry, onSupport, errorMessage }: VerificationFailureProps) {
   return (
     <div className="flex flex-col h-full bg-background">
       <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
@@ -116,6 +117,11 @@ export function VerificationFailureScreen({ onRetry, onSupport }: VerificationFa
         <p className="text-[var(--text-callout)] text-text-secondary mb-8 max-w-sm">
           We couldn't verify your photo. This can happen if the photo doesn't match your profile or the lighting isn't clear.
         </p>
+        {errorMessage && (
+          <div className="w-full max-w-sm mb-6">
+            <InlineError message={errorMessage} />
+          </div>
+        )}
 
         {/* Common Reasons */}
         <div className="w-full max-w-sm bg-surface rounded-[var(--radius-md)] p-4 border border-divider mb-6">
