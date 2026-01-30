@@ -117,6 +117,29 @@ export function OTPInput({ length = 6, value, onChange }: OTPInputProps) {
       inputRefs.current[index - 1]?.focus();
     }
   };
+
+  const handlePaste = (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedValue = e.clipboardData.getData('text');
+    const digits = pastedValue.replace(/\D/g, '').split('');
+
+    if (digits.length === 0) return;
+
+    const newValue = value.split('');
+    let cursor = index;
+
+    digits.forEach((digit) => {
+      if (cursor < length) {
+        newValue[cursor] = digit;
+        cursor += 1;
+      }
+    });
+
+    onChange(newValue.join(''));
+
+    const nextIndex = Math.min(cursor, length - 1);
+    inputRefs.current[nextIndex]?.focus();
+  };
   
   return (
     <div className="flex gap-2 justify-center">
@@ -125,11 +148,15 @@ export function OTPInput({ length = 6, value, onChange }: OTPInputProps) {
           key={index}
           ref={(el) => (inputRefs.current[index] = el)}
           type="text"
+          autoComplete="one-time-code"
+          aria-label={`Digit ${index + 1} of ${length}`}
           inputMode="numeric"
+          pattern="\\d*"
           maxLength={1}
           value={value[index] || ''}
           onChange={(e) => handleChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
+          onPaste={(e) => handlePaste(index, e)}
           className="
             w-12 h-14 text-center text-[var(--text-title-2)] font-semibold
             bg-input-background text-text-primary
