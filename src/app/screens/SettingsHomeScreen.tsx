@@ -117,26 +117,24 @@ export function SettingsHomeScreen({ onBack, onNavigate, onLogout, userInfo }: S
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        {/* User Info Card */}
-        <div className="mx-4 mt-4 mb-6 p-4 bg-elevated-surface rounded-[var(--radius-lg)] border border-divider">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-              <User className="w-6 h-6 text-accent" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-[var(--text-body)] font-semibold text-text-primary">
-                {userInfo.name}
-              </h2>
-              <p className="text-[var(--text-callout)] text-text-secondary">
-                {userInfo.email}
-              </p>
-            </div>
+        {/* User Info Header */}
+        <div className="mx-4 mt-3 mb-4 px-3 py-2.5 bg-surface/50 rounded-[var(--radius-md)] border border-divider/60 flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center">
+            <User className="w-5 h-5 text-accent" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-[var(--text-callout)] font-semibold text-text-primary truncate">
+              {userInfo.name}
+            </h2>
+            <p className="text-[var(--text-footnote)] text-text-secondary truncate">
+              {userInfo.email}
+            </p>
           </div>
           {userInfo.isVerified && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-success/10 rounded-[var(--radius-md)]">
-              <ShieldCheck className="w-4 h-4 text-success" />
-              <span className="text-[var(--text-callout)] text-success font-medium">
-                Verified Member
+            <div className="flex items-center gap-1 px-2 py-1 bg-success/10 rounded-full">
+              <ShieldCheck className="w-3.5 h-3.5 text-success" />
+              <span className="text-[var(--text-caption)] text-success font-medium">
+                Verified
               </span>
             </div>
           )}
@@ -144,27 +142,27 @@ export function SettingsHomeScreen({ onBack, onNavigate, onLogout, userInfo }: S
 
         {/* Settings Sections */}
         {settingsSections.map((section, sectionIndex) => (
-          <div key={sectionIndex} className="mb-6">
+          <div key={sectionIndex} className="mb-5">
             <h3 className="px-4 mb-2 text-[var(--text-footnote)] font-semibold text-text-secondary uppercase tracking-wide">
               {section.title}
             </h3>
-            <div className="bg-surface border-y border-divider">
+            <div className="mx-4 bg-surface/40 rounded-[var(--radius-md)] border border-divider/60">
               {section.items.map((item, itemIndex) => {
                 const Icon = item.icon;
                 return (
                   <button
                     key={itemIndex}
                     onClick={() => onNavigate(item.screen)}
-                    className={`w-full flex items-center gap-3 px-4 py-3.5 hover:bg-input-background transition-colors ${
-                      itemIndex < section.items.length - 1 ? 'border-b border-divider' : ''
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-input-background/70 transition-colors ${
+                      itemIndex < section.items.length - 1 ? 'border-b border-divider/50' : ''
                     }`}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-elevated-surface flex items-center justify-center flex-shrink-0">
-                      <Icon className="w-4 h-4 text-text-primary" />
+                    <div className="w-7 h-7 rounded-md bg-elevated-surface/70 flex items-center justify-center flex-shrink-0">
+                      <Icon className="w-3.5 h-3.5 text-text-primary" />
                     </div>
                     <div className="flex-1 text-left">
                       <div className="flex items-center gap-2">
-                        <span className="text-[var(--text-body)] text-text-primary">
+                        <span className="text-[var(--text-callout)] text-text-primary">
                           {item.label}
                         </span>
                         {item.badge && (
@@ -173,11 +171,11 @@ export function SettingsHomeScreen({ onBack, onNavigate, onLogout, userInfo }: S
                           </span>
                         )}
                       </div>
-                      <span className="text-[var(--text-callout)] text-text-secondary">
+                      <span className="text-[var(--text-footnote)] text-text-secondary">
                         {item.description}
                       </span>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-text-muted flex-shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-text-muted flex-shrink-0" />
                   </button>
                 );
               })}
