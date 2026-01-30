@@ -55,6 +55,9 @@ export function LifeMapScreen({ onContinue, onBack, initialAnswers = [] }: LifeM
   const [answers, setAnswers] = React.useState<PromptAnswer[]>(initialAnswers);
   const [currentAnswer, setCurrentAnswer] = React.useState('');
   const [isRecording, setIsRecording] = React.useState(false);
+  const [recordingSeconds, setRecordingSeconds] = React.useState(0);
+  const recordingIntervalRef = React.useRef<number | null>(null);
+  const recordingTimeoutRef = React.useRef<number | null>(null);
 
   const minPrompts = 3;
   const maxPrompts = 5;
@@ -68,6 +71,33 @@ export function LifeMapScreen({ onContinue, onBack, initialAnswers = [] }: LifeM
     const existingAnswer = answers.find((a) => a.promptId === currentPrompt.id);
     setCurrentAnswer(existingAnswer?.answer || '');
   }, [currentPromptIndex, currentPrompt.id, answers]);
+
+  React.useEffect(() => {
+    if (isRecording) {
+      recordingIntervalRef.current = window.setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } else if (recordingIntervalRef.current) {
+      window.clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+
+    return () => {
+      if (recordingIntervalRef.current) {
+        window.clearInterval(recordingIntervalRef.current);
+        recordingIntervalRef.current = null;
+      }
+    };
+  }, [isRecording]);
+
+  React.useEffect(() => {
+    return () => {
+      if (recordingTimeoutRef.current) {
+        window.clearTimeout(recordingTimeoutRef.current);
+        recordingTimeoutRef.current = null;
+      }
+    };
+  }, []);
 
   const handleSaveAndNext = () => {
     if (currentAnswer.trim()) {
@@ -104,23 +134,35 @@ export function LifeMapScreen({ onContinue, onBack, initialAnswers = [] }: LifeM
   };
 
   const handleVoiceCapture = () => {
-    setIsRecording(!isRecording);
-    // In real app: start/stop voice recording and transcribe
-    if (!isRecording) {
-      // Simulate recording
-      setTimeout(() => {
-        setIsRecording(false);
-        // Simulate transcription
-        setCurrentAnswer(
-          currentAnswer +
-            (currentAnswer ? ' ' : '') +
-            'This is a simulated voice transcription...'
-        );
-      }, 2000);
+    if (isRecording) {
+      if (recordingTimeoutRef.current) {
+        window.clearTimeout(recordingTimeoutRef.current);
+        recordingTimeoutRef.current = null;
+      }
+      setIsRecording(false);
+      setRecordingSeconds(0);
+      return;
     }
+
+    setRecordingSeconds(0);
+    setIsRecording(true);
+    // In real app: start/stop voice recording and transcribe
+    recordingTimeoutRef.current = window.setTimeout(() => {
+      setIsRecording(false);
+      setRecordingSeconds(0);
+      // Simulate transcription
+      setCurrentAnswer(
+        currentAnswer +
+          (currentAnswer ? ' ' : '') +
+          'This is a simulated voice transcription...'
+      );
+    }, 2000);
   };
 
   const isAnswered = answers.some((a) => a.promptId === currentPrompt.id);
+  const formattedRecordingTime = `${Math.floor(recordingSeconds / 60)}:${String(
+    recordingSeconds % 60
+  ).padStart(2, '0')}`;
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -198,7 +240,14 @@ export function LifeMapScreen({ onContinue, onBack, initialAnswers = [] }: LifeM
               <span className="text-[var(--text-callout)] font-medium">
                 {isRecording ? 'Recording... (tap to stop)' : 'Speak your answer'}
               </span>
+              <span className="text-[var(--text-footnote)] tabular-nums text-text-muted">
+                {formattedRecordingTime}
+              </span>
             </button>
+
+            <p className="text-[var(--text-caption)] text-text-muted text-center">
+              {isRecording ? 'Tap to stop • Max 60s per prompt' : 'Max 60s per prompt'}
+            </p>
 
             <p className="text-[var(--text-caption)] text-text-muted text-center">
               💡 Speaking your answer helps our AI understand your personality better
@@ -251,7 +300,7 @@ export function LifeMapScreen({ onContinue, onBack, initialAnswers = [] }: LifeM
             {canAddMore ? 'Save & Next Prompt' : 'Save Answer'}
           </Button>
         )}
-        
+
         {canContinue ? (
           <Button variant="secondary" onClick={() => onContinue(answers)}>
             Continue to Review ({answeredCount} answers)
