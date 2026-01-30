@@ -7,22 +7,26 @@ export interface DropdownOption {
 }
 
 export interface DropdownProps {
+  id?: string;
   label?: string;
   placeholder?: string;
   options: DropdownOption[];
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  helperText?: string;
   disabled?: boolean;
 }
 
 export function Dropdown({
+  id,
   label,
   placeholder = 'Select an option',
   options,
   value,
   onChange,
   error,
+  helperText,
   disabled = false,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -31,6 +35,10 @@ export function Dropdown({
   const optionRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
   const listboxId = React.useId();
   const [activeIndex, setActiveIndex] = React.useState(-1);
+  const dropdownId = id ?? React.useId();
+  const errorId = `${dropdownId}-error`;
+  const helperTextId = `${dropdownId}-help`;
+  const describedBy = error ? errorId : helperText ? helperTextId : undefined;
 
   const selectedOption = options.find((opt) => opt.value === value);
   const selectedIndex = options.findIndex((opt) => opt.value === value);
@@ -162,6 +170,9 @@ export function Dropdown({
           aria-haspopup="listbox"
           aria-expanded={isOpen}
           aria-controls={listboxId}
+          aria-describedby={describedBy}
+          aria-invalid={error ? 'true' : undefined}
+          id={dropdownId}
           className={`
             w-full h-[48px] px-4 rounded-[var(--radius-sm)]
             bg-input-background text-text-primary
@@ -229,7 +240,20 @@ export function Dropdown({
       </div>
 
       {error && (
-        <p className="mt-1.5 text-[var(--text-footnote)] text-error">{error}</p>
+        <p
+          className="mt-1.5 text-[var(--text-footnote)] text-error"
+          id={errorId}
+        >
+          {error}
+        </p>
+      )}
+      {helperText && !error && (
+        <p
+          className="mt-1.5 text-[var(--text-footnote)] text-text-muted"
+          id={helperTextId}
+        >
+          {helperText}
+        </p>
       )}
     </div>
   );
