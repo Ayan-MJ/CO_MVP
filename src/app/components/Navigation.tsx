@@ -3,7 +3,9 @@ import { ChevronLeft, MoreVertical } from 'lucide-react';
 
 export interface TopBarProps {
   title?: string;
+  /** Provide an aria-label on icon-only controls rendered in this slot. */
   left?: React.ReactNode;
+  /** Provide an aria-label on icon-only controls rendered in this slot. */
   right?: React.ReactNode;
   onBack?: () => void;
   variant?: 'default' | 'transparent';
@@ -21,6 +23,7 @@ export function TopBar({ title, left, right, onBack, variant = 'default' }: TopB
         {onBack && (
           <button
             onClick={onBack}
+            aria-label="Go back"
             className="flex items-center gap-1 text-accent hover:opacity-70 transition-opacity"
           >
             <ChevronLeft className="w-6 h-6" />

@@ -13,10 +13,18 @@ export function Input({
   className = '',
   ...props
 }: InputProps) {
+  const inputId = props.id ?? React.useId();
+  const errorId = `${inputId}-error`;
+  const helperTextId = `${inputId}-help`;
+  const describedBy = error ? errorId : helperText ? helperTextId : undefined;
+
   return (
     <div className="w-full">
       {label && (
-        <label className="block mb-2 text-[var(--text-callout)] font-medium text-text-primary">
+        <label
+          className="block mb-2 text-[var(--text-callout)] font-medium text-text-primary"
+          htmlFor={inputId}
+        >
           {label}
         </label>
       )}
@@ -32,13 +40,20 @@ export function Input({
           ${error ? 'border-error focus:ring-error/40' : ''}
           ${className}
         `}
+        aria-describedby={describedBy}
+        aria-invalid={error ? 'true' : undefined}
+        id={inputId}
         {...props}
       />
       {error && (
-        <p className="mt-1.5 text-[var(--text-footnote)] text-error">{error}</p>
+        <p className="mt-1.5 text-[var(--text-footnote)] text-error" id={errorId}>
+          {error}
+        </p>
       )}
       {helperText && !error && (
-        <p className="mt-1.5 text-[var(--text-footnote)] text-text-muted">{helperText}</p>
+        <p className="mt-1.5 text-[var(--text-footnote)] text-text-muted" id={helperTextId}>
+          {helperText}
+        </p>
       )}
     </div>
   );
@@ -58,10 +73,18 @@ export function TextArea({
   rows = 4,
   ...props
 }: TextAreaProps) {
+  const textAreaId = props.id ?? React.useId();
+  const errorId = `${textAreaId}-error`;
+  const helperTextId = `${textAreaId}-help`;
+  const describedBy = error ? errorId : helperText ? helperTextId : undefined;
+
   return (
     <div className="w-full">
       {label && (
-        <label className="block mb-2 text-[var(--text-callout)] font-medium text-text-primary">
+        <label
+          className="block mb-2 text-[var(--text-callout)] font-medium text-text-primary"
+          htmlFor={textAreaId}
+        >
           {label}
         </label>
       )}
@@ -78,14 +101,21 @@ export function TextArea({
           ${error ? 'border-error focus:ring-error/40' : ''}
           ${className}
         `}
+        aria-describedby={describedBy}
+        aria-invalid={error ? 'true' : undefined}
+        id={textAreaId}
         rows={rows}
         {...props}
       />
       {error && (
-        <p className="mt-1.5 text-[var(--text-footnote)] text-error">{error}</p>
+        <p className="mt-1.5 text-[var(--text-footnote)] text-error" id={errorId}>
+          {error}
+        </p>
       )}
       {helperText && !error && (
-        <p className="mt-1.5 text-[var(--text-footnote)] text-text-muted">{helperText}</p>
+        <p className="mt-1.5 text-[var(--text-footnote)] text-text-muted" id={helperTextId}>
+          {helperText}
+        </p>
       )}
     </div>
   );

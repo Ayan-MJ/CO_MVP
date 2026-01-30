@@ -9,6 +9,7 @@ export interface DropdownOption {
 export interface DropdownProps {
   id?: string;
   label?: string;
+  id?: string;
   placeholder?: string;
   options: DropdownOption[];
   value: string;
@@ -21,6 +22,7 @@ export interface DropdownProps {
 export function Dropdown({
   id,
   label,
+  id,
   placeholder = 'Select an option',
   options,
   value,
@@ -155,7 +157,10 @@ export function Dropdown({
   return (
     <div className="w-full" ref={dropdownRef}>
       {label && (
-        <label className="block mb-2 text-[var(--text-callout)] font-medium text-text-primary">
+        <label
+          className="block mb-2 text-[var(--text-callout)] font-medium text-text-primary"
+          htmlFor={dropdownId}
+        >
           {label}
         </label>
       )}
@@ -244,6 +249,7 @@ export function Dropdown({
           className="mt-1.5 text-[var(--text-footnote)] text-error"
           id={errorId}
         >
+        <p className="mt-1.5 text-[var(--text-footnote)] text-error" id={errorId}>
           {error}
         </p>
       )}
@@ -252,6 +258,7 @@ export function Dropdown({
           className="mt-1.5 text-[var(--text-footnote)] text-text-muted"
           id={helperTextId}
         >
+        <p className="mt-1.5 text-[var(--text-footnote)] text-text-muted" id={helperTextId}>
           {helperText}
         </p>
       )}
