@@ -8,25 +8,33 @@ export interface DropdownOption {
 
 export interface DropdownProps {
   label?: string;
+  id?: string;
   placeholder?: string;
   options: DropdownOption[];
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  helperText?: string;
   disabled?: boolean;
 }
 
 export function Dropdown({
   label,
+  id,
   placeholder = 'Select an option',
   options,
   value,
   onChange,
   error,
+  helperText,
   disabled = false,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const dropdownId = id ?? React.useId();
+  const errorId = `${dropdownId}-error`;
+  const helperTextId = `${dropdownId}-help`;
+  const describedBy = error ? errorId : helperText ? helperTextId : undefined;
 
   const selectedOption = options.find((opt) => opt.value === value);
 
@@ -49,7 +57,10 @@ export function Dropdown({
   return (
     <div className="w-full" ref={dropdownRef}>
       {label && (
-        <label className="block mb-2 text-[var(--text-callout)] font-medium text-text-primary">
+        <label
+          className="block mb-2 text-[var(--text-callout)] font-medium text-text-primary"
+          htmlFor={dropdownId}
+        >
           {label}
         </label>
       )}
@@ -59,6 +70,9 @@ export function Dropdown({
           type="button"
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
+          aria-describedby={describedBy}
+          aria-invalid={error ? 'true' : undefined}
+          id={dropdownId}
           className={`
             w-full h-[48px] px-4 rounded-[var(--radius-sm)]
             bg-input-background text-text-primary
@@ -110,7 +124,14 @@ export function Dropdown({
       </div>
 
       {error && (
-        <p className="mt-1.5 text-[var(--text-footnote)] text-error">{error}</p>
+        <p className="mt-1.5 text-[var(--text-footnote)] text-error" id={errorId}>
+          {error}
+        </p>
+      )}
+      {helperText && !error && (
+        <p className="mt-1.5 text-[var(--text-footnote)] text-text-muted" id={helperTextId}>
+          {helperText}
+        </p>
       )}
     </div>
   );
