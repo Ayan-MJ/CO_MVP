@@ -197,9 +197,11 @@ export function ChatScreen({
 
       {/* Guardrail Banner */}
       {guardrailMessage && (
-        <div className="bg-accent-muted border-b border-accent/20 px-4 py-2.5 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-accent flex-shrink-0" />
-          <p className="text-[var(--text-footnote)] text-accent">{guardrailMessage}</p>
+        <div className="sticky top-0 z-10 bg-accent text-white border-b border-accent/60 px-4 py-3 flex items-center gap-3 shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+            <AlertCircle className="w-4 h-4 text-white" />
+          </div>
+          <p className="text-[var(--text-footnote)] font-semibold tracking-[-0.01em]">{guardrailMessage}</p>
         </div>
       )}
 
@@ -356,36 +358,46 @@ export function ChatScreen({
             </button>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
-            <button className="p-2.5 hover:bg-input-background rounded-full transition-colors">
-              <ImageIcon className="w-5 h-5 text-text-secondary" />
-            </button>
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Type a message..."
-                className="w-full bg-input-background text-text-primary placeholder:text-text-muted rounded-full px-4 py-2.5 text-[var(--text-callout)] focus:outline-none focus:ring-2 focus:ring-accent/50"
-                disabled={messagesRemaining === 0}
-              />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <button className="p-2.5 hover:bg-input-background rounded-full transition-colors">
+                <ImageIcon className="w-5 h-5 text-text-secondary" />
+              </button>
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder="Type a message..."
+                  className="w-full bg-input-background text-text-primary placeholder:text-text-muted rounded-full px-4 py-2.5 text-[var(--text-callout)] focus:outline-none focus:ring-2 focus:ring-accent/50"
+                  disabled={messagesRemaining === 0}
+                />
+              </div>
+              {inputText.trim() ? (
+                <button
+                  onClick={handleSendMessage}
+                  disabled={messagesRemaining === 0}
+                  className="p-2.5 bg-accent rounded-full hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send className="w-5 h-5 text-white" />
+                </button>
+              ) : (
+                <button
+                  onClick={handleStartRecording}
+                  className="p-2.5 hover:bg-input-background rounded-full transition-colors"
+                >
+                  <Mic className="w-5 h-5 text-text-secondary" />
+                </button>
+              )}
             </div>
-            {inputText.trim() ? (
-              <button
-                onClick={handleSendMessage}
-                disabled={messagesRemaining === 0}
-                className="p-2.5 bg-accent rounded-full hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Send className="w-5 h-5 text-white" />
-              </button>
-            ) : (
-              <button
-                onClick={handleStartRecording}
-                className="p-2.5 hover:bg-input-background rounded-full transition-colors"
-              >
-                <Mic className="w-5 h-5 text-text-secondary" />
-              </button>
+            {matchStatus === 'accepted' && (
+              <div className="flex justify-end">
+                <div className="flex items-center gap-2 rounded-full bg-accent/10 text-accent px-3 py-1 text-[var(--text-caption)] font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent"></span>
+                  {messagesRemaining} messages left
+                </div>
+              </div>
             )}
           </div>
         )}
