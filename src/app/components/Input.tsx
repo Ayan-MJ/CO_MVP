@@ -181,11 +181,17 @@ export interface SegmentedControlProps {
 
 export function SegmentedControl({ options, value, onChange }: SegmentedControlProps) {
   return (
-    <div className="inline-flex p-1 bg-input-background rounded-[var(--radius-sm)] gap-1">
+    <div
+      className="inline-flex p-1 bg-input-background rounded-[var(--radius-sm)] gap-1"
+      role="tablist"
+    >
       {options.map((option) => (
         <button
           key={option.value}
           onClick={() => onChange(option.value)}
+          role="tab"
+          aria-selected={value === option.value}
+          tabIndex={value === option.value ? 0 : -1}
           className={`
             px-4 h-8 rounded-[8px] text-[var(--text-callout)] font-medium
             transition-all duration-200
