@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronLeft, MoreVertical } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 export interface TopBarProps {
   title?: string;
@@ -24,7 +24,7 @@ export function TopBar({ title, left, right, onBack, variant = 'default' }: TopB
           <button
             onClick={onBack}
             aria-label="Go back"
-            className="flex items-center gap-1 text-accent hover:opacity-70 transition-opacity"
+            className="flex items-center gap-1 text-accent hover:opacity-70 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -101,13 +101,14 @@ export function BottomTabBar({ tabs, activeTab, onTabChange }: BottomTabBarProps
           onClick={() => onTabChange(tab.id)}
           role="tab"
           aria-selected={activeTab === tab.id}
+          aria-label={tab.label}
           tabIndex={focusedTab === tab.id ? 0 : -1}
           ref={(element) => {
             tabRefs.current[index] = element;
           }}
           onFocus={() => setFocusedTab(tab.id)}
           onKeyDown={(event) => handleKeyDown(event, index)}
-          className="flex-1 flex flex-col items-center justify-center gap-1 py-2 relative"
+          className="flex-1 flex flex-col items-center justify-center gap-1 py-2 relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
         >
           <div className="relative">
             <div className={`transition-colors ${activeTab === tab.id ? 'text-accent' : 'text-text-muted'}`}>
