@@ -1,6 +1,5 @@
 import React from 'react';
-import { MapPin, Calendar, Coffee, Utensils, Music, Heart, Sparkles, Info, ChevronRight } from 'lucide-react';
-import { Button } from '@/app/components/Button';
+import { MapPin, Coffee, Utensils, Music, Heart, Sparkles, Info, ChevronRight } from 'lucide-react';
 import { TopBar } from '@/app/components/Navigation';
 
 interface DateIdea {
@@ -32,6 +31,8 @@ export function DatePlanningScreen({
   onProposeCustomDate,
 }: DatePlanningScreenProps) {
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
+  const [selectedTimeWindow, setSelectedTimeWindow] = React.useState<string>('any');
+  const [selectedArea, setSelectedArea] = React.useState<string>('any');
 
   // Curated date ideas based on compatibility
   const dateIdeas: DateIdea[] = [
@@ -90,6 +91,20 @@ export function DatePlanningScreen({
     { id: 'coffee', label: 'Coffee', icon: Coffee },
     { id: 'dinner', label: 'Dinner', icon: Utensils },
     { id: 'activity', label: 'Activity', icon: MapPin },
+  ];
+
+  const timeWindows = [
+    { id: 'any', label: 'Any time' },
+    { id: 'morning', label: 'Morning' },
+    { id: 'afternoon', label: 'Afternoon' },
+    { id: 'evening', label: 'Evening' },
+  ];
+
+  const areas = [
+    { id: 'any', label: 'Anywhere' },
+    { id: 'williamsburg', label: 'Williamsburg' },
+    { id: 'prospect', label: 'Prospect Heights' },
+    { id: 'west-village', label: 'West Village' },
   ];
 
   const filteredIdeas =
@@ -152,6 +167,52 @@ export function DatePlanningScreen({
                   </button>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Planning Controls */}
+          <div className="space-y-3">
+            <div>
+              <p className="text-[var(--text-caption)] font-medium text-text-muted mb-2">Time window</p>
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+                {timeWindows.map((window) => {
+                  const isActive = selectedTimeWindow === window.id;
+                  return (
+                    <button
+                      key={window.id}
+                      onClick={() => setSelectedTimeWindow(window.id)}
+                      className={`px-3 py-1.5 rounded-full border whitespace-nowrap transition-all text-[var(--text-caption)] font-medium ${
+                        isActive
+                          ? 'bg-accent text-white border-accent'
+                          : 'bg-surface text-text-secondary border-border-primary hover:border-accent/50'
+                      }`}
+                    >
+                      {window.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <p className="text-[var(--text-caption)] font-medium text-text-muted mb-2">General area</p>
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+                {areas.map((area) => {
+                  const isActive = selectedArea === area.id;
+                  return (
+                    <button
+                      key={area.id}
+                      onClick={() => setSelectedArea(area.id)}
+                      className={`px-3 py-1.5 rounded-full border whitespace-nowrap transition-all text-[var(--text-caption)] font-medium ${
+                        isActive
+                          ? 'bg-accent text-white border-accent'
+                          : 'bg-surface text-text-secondary border-border-primary hover:border-accent/50'
+                      }`}
+                    >
+                      {area.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
