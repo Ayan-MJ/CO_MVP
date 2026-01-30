@@ -41,14 +41,16 @@ export function Input({
           ${className}
         `}
         aria-describedby={describedBy}
-        aria-invalid={error ? 'true' : undefined}
+        aria-invalid={Boolean(error)}
         id={inputId}
         {...props}
       />
       {error && (
-        <p className="mt-1.5 text-[var(--text-footnote)] text-error" id={errorId}>
-          {error}
-        </p>
+        <div className="mt-1.5" role="alert">
+          <p className="text-[var(--text-footnote)] text-error" id={errorId}>
+            {error}
+          </p>
+        </div>
       )}
       {helperText && !error && (
         <p className="mt-1.5 text-[var(--text-footnote)] text-text-muted" id={helperTextId}>
@@ -102,15 +104,17 @@ export function TextArea({
           ${className}
         `}
         aria-describedby={describedBy}
-        aria-invalid={error ? 'true' : undefined}
+        aria-invalid={Boolean(error)}
         id={textAreaId}
         rows={rows}
         {...props}
       />
       {error && (
-        <p className="mt-1.5 text-[var(--text-footnote)] text-error" id={errorId}>
-          {error}
-        </p>
+        <div className="mt-1.5" role="alert">
+          <p className="text-[var(--text-footnote)] text-error" id={errorId}>
+            {error}
+          </p>
+        </div>
       )}
       {helperText && !error && (
         <p className="mt-1.5 text-[var(--text-footnote)] text-text-muted" id={helperTextId}>
@@ -125,9 +129,10 @@ export interface OTPInputProps {
   length?: number;
   value: string;
   onChange: (value: string) => void;
+  label?: string;
 }
 
-export function OTPInput({ length = 6, value, onChange }: OTPInputProps) {
+export function OTPInput({ length = 6, value, onChange, label = 'One-time passcode' }: OTPInputProps) {
   const inputRefs = React.useRef<(HTMLInputElement | null)[]>([]);
   
   const handleChange = (index: number, digit: string) => {
@@ -172,14 +177,15 @@ export function OTPInput({ length = 6, value, onChange }: OTPInputProps) {
   };
   
   return (
-    <div className="flex gap-2 justify-center">
+    <fieldset className="flex gap-2 justify-center">
+      <legend className="sr-only">{label}</legend>
       {Array.from({ length }).map((_, index) => (
         <input
           key={index}
           ref={(el) => (inputRefs.current[index] = el)}
           type="text"
           autoComplete="one-time-code"
-          aria-label={`Digit ${index + 1} of ${length}`}
+          aria-label={`OTP digit ${index + 1} of ${length}`}
           inputMode="numeric"
           pattern="\\d*"
           maxLength={1}
@@ -196,7 +202,7 @@ export function OTPInput({ length = 6, value, onChange }: OTPInputProps) {
           "
         />
       ))}
-    </div>
+    </fieldset>
   );
 }
 
