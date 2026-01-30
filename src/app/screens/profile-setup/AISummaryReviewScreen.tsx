@@ -1,22 +1,30 @@
 import React from 'react';
-import { Sparkles, Edit2, Check, AlertCircle } from 'lucide-react';
-import { Input, TextArea } from '@/app/components/Input';
+import { Sparkles } from 'lucide-react';
 import { Button } from '@/app/components/Button';
+import { ChipGroup } from '@/app/components/Chip';
+import { Toggle } from '@/app/components/ListRow';
 import { TopBar } from '@/app/components/Navigation';
-
-interface ExtractedField {
-  label: string;
-  value: string;
-  confidence: 'high' | 'medium' | 'low';
-  editable: boolean;
-  key: string;
-}
+import { Slider } from '@/app/components/ui/slider';
 
 interface AISummaryData {
+  intent: string;
+  kidsTimeline: string;
+  relocation: {
+    openToRelocate: boolean;
+    openToLongDistance: boolean;
+    radiusMiles: number;
+    preferredRegions: string[];
+  };
+  lifestyleRails: {
+    socialEnergy: number;
+    adventure: number;
+    routine: number;
+  };
+  values: string[];
+  conflictStyle: string;
   bio: string;
   personality: string[];
   lifestyle: string[];
-  values: string[];
   interests: string[];
 }
 
@@ -31,106 +39,104 @@ export function AISummaryReviewScreen({
   onBack,
   promptAnswers,
 }: AISummaryReviewScreenProps) {
-  // Simulate AI extraction from prompt answers
-  const [extractedFields, setExtractedFields] = React.useState<ExtractedField[]>([
-    {
-      label: 'Bio Summary',
-      value:
-        'Creative professional who values deep conversations and outdoor adventures. Looking for a genuine connection built on shared values and mutual growth.',
-      confidence: 'high',
-      editable: true,
-      key: 'bio',
-    },
-    {
-      label: 'Personality Traits',
-      value: 'Thoughtful, Adventurous, Creative, Empathetic',
-      confidence: 'high',
-      editable: true,
-      key: 'personality',
-    },
-    {
-      label: 'Lifestyle',
-      value: 'Active, Social, Career-focused, Health-conscious',
-      confidence: 'medium',
-      editable: true,
-      key: 'lifestyle',
-    },
-    {
-      label: 'Core Values',
-      value: 'Authenticity, Growth, Kindness, Ambition',
-      confidence: 'high',
-      editable: true,
-      key: 'values',
-    },
-    {
-      label: 'Interests',
-      value: 'Hiking, Coffee culture, Design, Travel',
-      confidence: 'medium',
-      editable: true,
-      key: 'interests',
-    },
+  const intentOptions = [
+    { id: 'long-term', label: 'Long-term partnership' },
+    { id: 'marriage', label: 'Marriage-minded' },
+    { id: 'exploring', label: 'Exploring with intention' },
+    { id: 'growth', label: 'Focused on growth together' },
+  ];
+  const kidsTimelineOptions = [
+    { id: 'soon', label: 'Want kids soon (0–2 years)' },
+    { id: 'someday', label: 'Someday (3–5 years)' },
+    { id: 'open', label: 'Open to partner preference' },
+    { id: 'not-sure', label: 'Not sure yet' },
+    { id: 'no-kids', label: 'Don’t want kids' },
+  ];
+  const relocationRegions = [
+    { id: 'west', label: 'West Coast' },
+    { id: 'mountain', label: 'Mountain West' },
+    { id: 'central', label: 'Central US' },
+    { id: 'south', label: 'South' },
+    { id: 'east', label: 'East Coast' },
+    { id: 'international', label: 'Open to international' },
+  ];
+  const valuesOptions = [
+    { id: 'authenticity', label: 'Authenticity' },
+    { id: 'growth', label: 'Growth mindset' },
+    { id: 'kindness', label: 'Kindness' },
+    { id: 'ambition', label: 'Ambition' },
+    { id: 'family', label: 'Family' },
+    { id: 'adventure', label: 'Adventure' },
+    { id: 'community', label: 'Community' },
+  ];
+  const conflictStyleOptions = [
+    { id: 'talk-it-out', label: 'Talk it out right away' },
+    { id: 'space-then-talk', label: 'Need space, then talk' },
+    { id: 'humor', label: 'Use humor to reset' },
+    { id: 'direct', label: 'Direct and practical' },
+  ];
+
+  const [intent, setIntent] = React.useState('long-term');
+  const [kidsTimeline, setKidsTimeline] = React.useState('someday');
+  const [openToRelocate, setOpenToRelocate] = React.useState(true);
+  const [openToLongDistance, setOpenToLongDistance] = React.useState(false);
+  const [relocationRadius, setRelocationRadius] = React.useState([25]);
+  const [preferredRegions, setPreferredRegions] = React.useState<string[]>(['west']);
+  const [socialEnergy, setSocialEnergy] = React.useState([65]);
+  const [adventure, setAdventure] = React.useState([60]);
+  const [routine, setRoutine] = React.useState([45]);
+  const [values, setValues] = React.useState<string[]>([
+    'authenticity',
+    'growth',
+    'kindness',
   ]);
+  const [conflictStyle, setConflictStyle] = React.useState('talk-it-out');
 
-  const [editingField, setEditingField] = React.useState<string | null>(null);
-  const [editValue, setEditValue] = React.useState('');
+  const getLabel = (options: { id: string; label: string }[], id: string) =>
+    options.find((option) => option.id === id)?.label ?? '';
 
-  const startEditing = (field: ExtractedField) => {
-    setEditingField(field.key);
-    setEditValue(field.value);
+  const getRailDescriptor = (value: number, low: string, high: string) => {
+    if (value <= 35) return low;
+    if (value >= 65) return high;
+    return 'Balanced';
   };
 
-  const saveEdit = (key: string) => {
-    setExtractedFields((fields) =>
-      fields.map((f) => (f.key === key ? { ...f, value: editValue, confidence: 'high' } : f))
-    );
-    setEditingField(null);
-  };
-
-  const cancelEdit = () => {
-    setEditingField(null);
-    setEditValue('');
-  };
+  const lifestyleSummary = [
+    getRailDescriptor(socialEnergy[0], 'Homebody', 'Social'),
+    getRailDescriptor(adventure[0], 'Comfort-focused', 'Adventurous'),
+    getRailDescriptor(routine[0], 'Spontaneous', 'Planner'),
+  ];
 
   const handleContinue = () => {
-    const bioField = extractedFields.find((f) => f.key === 'bio');
-    const personalityField = extractedFields.find((f) => f.key === 'personality');
-    const lifestyleField = extractedFields.find((f) => f.key === 'lifestyle');
-    const valuesField = extractedFields.find((f) => f.key === 'values');
-    const interestsField = extractedFields.find((f) => f.key === 'interests');
+    const intentLabel = getLabel(intentOptions, intent);
+    const conflictLabel = getLabel(conflictStyleOptions, conflictStyle);
+    const valuesLabels = values.map((valueId) => getLabel(valuesOptions, valueId)).filter(Boolean);
 
     onContinue({
-      bio: bioField?.value || '',
-      personality: personalityField?.value.split(',').map((v) => v.trim()) || [],
-      lifestyle: lifestyleField?.value.split(',').map((v) => v.trim()) || [],
-      values: valuesField?.value.split(',').map((v) => v.trim()) || [],
-      interests: interestsField?.value.split(',').map((v) => v.trim()) || [],
+      intent,
+      kidsTimeline,
+      relocation: {
+        openToRelocate,
+        openToLongDistance,
+        radiusMiles: relocationRadius[0],
+        preferredRegions,
+      },
+      lifestyleRails: {
+        socialEnergy: socialEnergy[0],
+        adventure: adventure[0],
+        routine: routine[0],
+      },
+      values: valuesLabels,
+      conflictStyle,
+      bio: `${intentLabel} focused on building a relationship rooted in ${valuesLabels
+        .slice(0, 2)
+        .join(' & ')}.`,
+      personality: [conflictLabel],
+      lifestyle: lifestyleSummary,
+      interests: preferredRegions
+        .map((regionId) => getLabel(relocationRegions, regionId))
+        .filter(Boolean),
     });
-  };
-
-  const getConfidenceColor = (confidence: string) => {
-    switch (confidence) {
-      case 'high':
-        return 'text-success';
-      case 'medium':
-        return 'text-warning';
-      case 'low':
-        return 'text-error';
-      default:
-        return 'text-text-muted';
-    }
-  };
-
-  const getConfidenceLabel = (confidence: string) => {
-    switch (confidence) {
-      case 'high':
-        return 'High confidence';
-      case 'medium':
-        return 'Medium confidence';
-      case 'low':
-        return 'Low confidence - please review';
-      default:
-        return '';
-    }
   };
 
   return (
@@ -155,88 +161,163 @@ export function AISummaryReviewScreen({
             </div>
           </div>
 
-          {/* Extracted Fields */}
+          {/* Structured Life Map Sections */}
           <div className="space-y-4">
-            {extractedFields.map((field) => (
-              <div
-                key={field.key}
-                className="p-4 rounded-[var(--radius-md)] bg-surface border border-divider"
-              >
-                {/* Field Header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-[var(--text-callout)] font-semibold text-text-primary">
-                        {field.label}
-                      </h4>
-                      {field.confidence !== 'high' && (
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            field.confidence === 'medium' ? 'bg-warning' : 'bg-error'
-                          }`}
-                          title={getConfidenceLabel(field.confidence)}
-                        />
-                      )}
-                    </div>
-                    {field.confidence !== 'high' && (
-                      <p className="text-[var(--text-caption)] text-text-muted">
-                        {getConfidenceLabel(field.confidence)}
-                      </p>
-                    )}
-                  </div>
-
-                  {field.editable && editingField !== field.key && (
-                    <button
-                      onClick={() => startEditing(field)}
-                      className="flex items-center gap-1 text-accent hover:opacity-70 transition-opacity"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      <span className="text-[var(--text-caption)] font-medium">Edit</span>
-                    </button>
-                  )}
-                </div>
-
-                {/* Field Value or Edit Mode */}
-                {editingField === field.key ? (
-                  <div className="space-y-3">
-                    {field.key === 'bio' ? (
-                      <TextArea
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        rows={4}
-                        autoFocus
-                      />
-                    ) : (
-                      <Input
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        autoFocus
-                      />
-                    )}
-                    <div className="flex gap-2">
-                      <Button variant="primary" onClick={() => saveEdit(field.key)}>
-                        <Check className="w-4 h-4" />
-                        Save
-                      </Button>
-                      <Button variant="secondary" onClick={cancelEdit}>
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <p className="text-[var(--text-callout)] text-text-primary leading-relaxed">
-                    {field.value}
-                  </p>
-                )}
+            <div className="p-4 rounded-[var(--radius-md)] bg-surface border border-divider space-y-3">
+              <div>
+                <h3 className="text-[var(--text-callout)] font-semibold text-text-primary">Intent</h3>
+                <p className="text-[var(--text-caption)] text-text-muted">
+                  How you describe the kind of relationship you are seeking.
+                </p>
               </div>
-            ))}
+              <ChipGroup
+                chips={intentOptions}
+                selectedIds={[intent]}
+                onSelectionChange={(selected) => setIntent(selected[0] ?? intent)}
+                multiSelect={false}
+              />
+            </div>
+
+            <div className="p-4 rounded-[var(--radius-md)] bg-surface border border-divider space-y-3">
+              <div>
+                <h3 className="text-[var(--text-callout)] font-semibold text-text-primary">
+                  Kids timeline
+                </h3>
+                <p className="text-[var(--text-caption)] text-text-muted">
+                  Align expectations around family planning.
+                </p>
+              </div>
+              <ChipGroup
+                chips={kidsTimelineOptions}
+                selectedIds={[kidsTimeline]}
+                onSelectionChange={(selected) => setKidsTimeline(selected[0] ?? kidsTimeline)}
+                multiSelect={false}
+              />
+            </div>
+
+            <div className="p-4 rounded-[var(--radius-md)] bg-surface border border-divider space-y-4">
+              <div>
+                <h3 className="text-[var(--text-callout)] font-semibold text-text-primary">
+                  Relocation
+                </h3>
+                <p className="text-[var(--text-caption)] text-text-muted">
+                  Clarify how flexible you are about moving or distance.
+                </p>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[var(--text-callout)] text-text-primary">Open to relocating</p>
+                  <p className="text-[var(--text-caption)] text-text-muted">
+                    Willing to move for the right connection.
+                  </p>
+                </div>
+                <Toggle checked={openToRelocate} onChange={setOpenToRelocate} />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[var(--text-callout)] text-text-primary">Open to long-distance</p>
+                  <p className="text-[var(--text-caption)] text-text-muted">
+                    Comfortable building something while apart.
+                  </p>
+                </div>
+                <Toggle checked={openToLongDistance} onChange={setOpenToLongDistance} />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-[var(--text-callout)] text-text-primary">Relocation radius</p>
+                  <span className="text-[var(--text-callout)] text-text-secondary">
+                    {relocationRadius[0]} miles
+                  </span>
+                </div>
+                <Slider
+                  value={relocationRadius}
+                  onValueChange={setRelocationRadius}
+                  min={0}
+                  max={250}
+                  step={5}
+                />
+              </div>
+              <div className="space-y-2">
+                <p className="text-[var(--text-callout)] text-text-primary">Preferred regions</p>
+                <ChipGroup
+                  chips={relocationRegions}
+                  selectedIds={preferredRegions}
+                  onSelectionChange={setPreferredRegions}
+                />
+              </div>
+            </div>
+
+            <div className="p-4 rounded-[var(--radius-md)] bg-surface border border-divider space-y-4">
+              <div>
+                <h3 className="text-[var(--text-callout)] font-semibold text-text-primary">
+                  Lifestyle rails
+                </h3>
+                <p className="text-[var(--text-caption)] text-text-muted">
+                  Balance points that describe how you live day to day.
+                </p>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[var(--text-callout)] text-text-primary">Social energy</p>
+                  <span className="text-[var(--text-callout)] text-text-secondary">
+                    {getRailDescriptor(socialEnergy[0], 'Homebody', 'Social')}
+                  </span>
+                </div>
+                <Slider value={socialEnergy} onValueChange={setSocialEnergy} min={0} max={100} />
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[var(--text-callout)] text-text-primary">Adventure level</p>
+                  <span className="text-[var(--text-callout)] text-text-secondary">
+                    {getRailDescriptor(adventure[0], 'Comfort-focused', 'Adventurous')}
+                  </span>
+                </div>
+                <Slider value={adventure} onValueChange={setAdventure} min={0} max={100} />
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[var(--text-callout)] text-text-primary">Routine style</p>
+                  <span className="text-[var(--text-callout)] text-text-secondary">
+                    {getRailDescriptor(routine[0], 'Spontaneous', 'Planner')}
+                  </span>
+                </div>
+                <Slider value={routine} onValueChange={setRoutine} min={0} max={100} />
+              </div>
+            </div>
+
+            <div className="p-4 rounded-[var(--radius-md)] bg-surface border border-divider space-y-3">
+              <div>
+                <h3 className="text-[var(--text-callout)] font-semibold text-text-primary">Values</h3>
+                <p className="text-[var(--text-caption)] text-text-muted">
+                  Prioritize what matters most to you.
+                </p>
+              </div>
+              <ChipGroup chips={valuesOptions} selectedIds={values} onSelectionChange={setValues} />
+            </div>
+
+            <div className="p-4 rounded-[var(--radius-md)] bg-surface border border-divider space-y-3">
+              <div>
+                <h3 className="text-[var(--text-callout)] font-semibold text-text-primary">
+                  Conflict style
+                </h3>
+                <p className="text-[var(--text-caption)] text-text-muted">
+                  How you prefer to resolve disagreements.
+                </p>
+              </div>
+              <ChipGroup
+                chips={conflictStyleOptions}
+                selectedIds={[conflictStyle]}
+                onSelectionChange={(selected) => setConflictStyle(selected[0] ?? conflictStyle)}
+                multiSelect={false}
+              />
+            </div>
           </div>
 
           {/* Tips */}
           <div className="p-4 rounded-[var(--radius-md)] bg-accent/10 border border-accent/20">
             <p className="text-[var(--text-footnote)] text-text-secondary">
-              <span className="font-semibold">💡 Tip:</span> Yellow or red indicators suggest our AI
-              is less certain. Take a moment to review those fields for accuracy.
+              <span className="font-semibold">💡 Tip:</span> Adjust any selections so they feel
+              true to you. These Life Map details power your matching preferences.
             </p>
           </div>
 
