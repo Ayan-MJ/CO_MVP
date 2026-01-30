@@ -26,6 +26,23 @@ interface IntroCardProps {
   compact?: boolean;
 }
 
+const fallbackImage =
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 960" role="img" aria-label="Photo unavailable">
+      <defs>
+        <linearGradient id="fallback-gradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#111827"/>
+          <stop offset="100%" stop-color="#4b5563"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="960" fill="url(#fallback-gradient)"/>
+      <circle cx="320" cy="360" r="90" fill="rgba(255,255,255,0.2)"/>
+      <rect x="180" y="520" width="280" height="36" rx="18" fill="rgba(255,255,255,0.2)"/>
+      <rect x="220" y="580" width="200" height="24" rx="12" fill="rgba(255,255,255,0.18)"/>
+    </svg>`
+  );
+
 export function IntroCard({ intro, onClick, compact = false }: IntroCardProps) {
   const primaryPhoto = intro.photos[0];
   const timeLeft = intro.expiresAt.getTime() - Date.now();
@@ -42,6 +59,14 @@ export function IntroCard({ intro, onClick, compact = false }: IntroCardProps) {
           src={primaryPhoto}
           alt={intro.name}
           className="w-full h-full object-cover"
+          loading="lazy"
+          decoding="async"
+          onError={(event) => {
+            const target = event.currentTarget;
+            if (target.src !== fallbackImage) {
+              target.src = fallbackImage;
+            }
+          }}
         />
         
         {/* Gradient Overlay */}
