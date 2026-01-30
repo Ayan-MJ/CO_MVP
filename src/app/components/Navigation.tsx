@@ -50,12 +50,60 @@ export interface BottomTabBarProps {
 }
 
 export function BottomTabBar({ tabs, activeTab, onTabChange }: BottomTabBarProps) {
+  const tabRefs = React.useRef<Array<HTMLButtonElement | null>>([]);
+  const [focusedTab, setFocusedTab] = React.useState(activeTab);
+
+  React.useEffect(() => {
+    setFocusedTab(activeTab);
+  }, [activeTab]);
+
+  const moveFocus = (nextIndex: number) => {
+    const nextTab = tabs[nextIndex];
+    if (!nextTab) return;
+    setFocusedTab(nextTab.id);
+    tabRefs.current[nextIndex]?.focus();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent, index: number) => {
+    if (tabs.length === 0) return;
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      moveFocus((index + 1) % tabs.length);
+      return;
+    }
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      moveFocus((index - 1 + tabs.length) % tabs.length);
+      return;
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      moveFocus(0);
+      return;
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      moveFocus(tabs.length - 1);
+    }
+  };
+
   return (
-    <div className="flex items-center h-20 bg-surface border-t border-divider px-2 pb-safe">
-      {tabs.map((tab) => (
+    <div
+      className="flex items-center h-20 bg-surface border-t border-divider px-2 pb-safe"
+      role="tablist"
+    >
+      {tabs.map((tab, index) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
+          role="tab"
+          aria-selected={activeTab === tab.id}
+          tabIndex={focusedTab === tab.id ? 0 : -1}
+          ref={(element) => {
+            tabRefs.current[index] = element;
+          }}
+          onFocus={() => setFocusedTab(tab.id)}
+          onKeyDown={(event) => handleKeyDown(event, index)}
           className="flex-1 flex flex-col items-center justify-center gap-1 py-2 relative"
         >
           <div className="relative">
