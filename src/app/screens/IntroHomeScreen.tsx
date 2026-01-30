@@ -35,7 +35,7 @@ const mockIntros: IntroCardData[] = [
     ],
     trustScore: 94,
     verified: true,
-    expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+    expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours from now
   },
   {
     id: 'intro-2',
@@ -62,7 +62,7 @@ const mockIntros: IntroCardData[] = [
     ],
     trustScore: 88,
     verified: true,
-    expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000),
   },
   {
     id: 'intro-3',
@@ -89,7 +89,7 @@ const mockIntros: IntroCardData[] = [
     ],
     trustScore: 91,
     verified: true,
-    expiresAt: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000),
   },
 ];
 
@@ -97,13 +97,11 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
   const [currentIndex, setCurrentIndex] = React.useState(0);
   const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
-  // Calculate next Monday at 9 AM
+  // Calculate a 72-hour refresh window
   const getNextRefresh = () => {
     const now = new Date();
-    const nextMonday = new Date();
-    nextMonday.setDate(now.getDate() + ((8 - now.getDay()) % 7 || 7));
-    nextMonday.setHours(9, 0, 0, 0);
-    return nextMonday;
+    const refreshAt = new Date(now.getTime() + 72 * 60 * 60 * 1000);
+    return refreshAt;
   };
 
   const nextRefresh = getNextRefresh();
@@ -148,9 +146,9 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
         <div className="p-4 space-y-4">
           {/* Header */}
           <div className="text-center pt-2 pb-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 mb-3">
-              <Calendar className="w-4 h-4 text-accent" />
-              <span className="text-[var(--text-caption)] text-accent font-medium">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-border-primary/30 mb-3">
+              <Calendar className="w-4 h-4 text-text-muted" />
+              <span className="text-[var(--text-caption)] text-text-muted font-normal">
                 {formatWeekRange()}
               </span>
             </div>
@@ -163,7 +161,7 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
           </div>
 
           {/* Countdown Timer */}
-          <CountdownTimer targetDate={nextRefresh} label="New introductions in" />
+          <CountdownTimer targetDate={nextRefresh} label="Introductions refresh in 72h" />
 
           {/* Quality Over Quantity Callout */}
           <div className="bg-accent/5 rounded-[var(--radius-md)] p-4 border border-accent/10">
@@ -257,7 +255,7 @@ export function IntroHomeScreen({ onIntroClick, onBack }: IntroHomeScreenProps) 
           {/* Footer Info */}
           <div className="text-center py-6">
             <p className="text-[var(--text-footnote)] text-text-muted max-w-xs mx-auto">
-              Introductions expire in 7 days. Make sure to review each profile before they refresh next Monday.
+              Introductions expire in 72 hours. Review each profile soon so you don't miss the window.
             </p>
           </div>
         </div>

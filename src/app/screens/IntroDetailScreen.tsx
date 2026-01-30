@@ -16,8 +16,8 @@ export function IntroDetailScreen({ intro, onBack, onAccept, onDecline }: IntroD
   const [showDeclineConfirm, setShowDeclineConfirm] = React.useState(false);
 
   const timeLeft = intro.expiresAt.getTime() - Date.now();
-  const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-  const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const daysLeft = Math.max(0, Math.floor(timeLeft / (1000 * 60 * 60 * 24)));
+  const hoursLeft = Math.max(0, Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
 
   const handleNextPhoto = () => {
     setCurrentPhotoIndex((prev) => (prev + 1) % intro.photos.length);
@@ -41,10 +41,10 @@ export function IntroDetailScreen({ intro, onBack, onAccept, onDecline }: IntroD
           Introduction
         </h3>
         {/* Expiry Timer */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-accent/10">
-          <Clock className="w-4 h-4 text-accent" />
-          <span className="text-[var(--text-caption)] text-accent font-medium tabular-nums">
-            {daysLeft}d {hoursLeft}h
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-warning/15 border border-warning/30">
+          <Clock className="w-4 h-4 text-warning" />
+          <span className="text-[var(--text-caption)] text-warning font-semibold tabular-nums">
+            Expires in {daysLeft}d {hoursLeft}h
           </span>
         </div>
       </div>
