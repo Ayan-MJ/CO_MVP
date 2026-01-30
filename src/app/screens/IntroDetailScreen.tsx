@@ -192,20 +192,20 @@ export function IntroDetailScreen({ intro, onBack, onAccept, onDecline }: IntroD
           {intro.watchOuts.length > 0 && (
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-full bg-warning/10 flex items-center justify-center">
-                  <AlertTriangle className="w-4 h-4 text-warning" />
+                <div className="w-7 h-7 rounded-full bg-warning/10 flex items-center justify-center">
+                  <AlertTriangle className="w-3.5 h-3.5 text-warning" />
                 </div>
-                <h2 className="text-[var(--text-callout)] font-semibold text-text-primary uppercase tracking-wide">
+                <h2 className="text-[var(--text-caption)] font-medium text-text-muted uppercase tracking-wide">
                   Things to Consider
                 </h2>
               </div>
               <div className="space-y-3">
                 {intro.watchOuts.map((watchOut, idx) => (
-                  <div key={idx} className="flex items-start gap-3 p-3 bg-warning/5 rounded-[var(--radius-md)] border border-warning/10">
-                    <div className="w-6 h-6 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-warning" />
+                  <div key={idx} className="flex items-start gap-3 p-3 bg-background-secondary rounded-[var(--radius-md)] border border-divider/60">
+                    <div className="w-5 h-5 rounded-full bg-warning/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <AlertTriangle className="w-3 h-3 text-warning" />
                     </div>
-                    <p className="text-[var(--text-callout)] text-text-secondary flex-1">
+                    <p className="text-[var(--text-callout)] text-text-muted flex-1">
                       {watchOut}
                     </p>
                   </div>
