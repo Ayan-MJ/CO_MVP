@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, AlertTriangle, Shield, Flag } from 'lucide-react';
+import { X, ShieldAlert, BadgeAlert, UserX, Ban, Link2Off, Flag } from 'lucide-react';
 
 interface ReportBlockSheetProps {
   matchName: string;
@@ -9,10 +9,11 @@ interface ReportBlockSheetProps {
 }
 
 const REPORT_REASONS = [
-  { id: 'inappropriate', label: 'Inappropriate content', icon: <AlertTriangle className="w-5 h-5" /> },
-  { id: 'spam', label: 'Spam or fake profile', icon: <Flag className="w-5 h-5" /> },
-  { id: 'harassment', label: 'Harassment or threats', icon: <Shield className="w-5 h-5" /> },
-  { id: 'safety', label: 'Safety concern', icon: <AlertTriangle className="w-5 h-5" /> },
+  { id: 'harassment', label: 'Harassment', icon: <ShieldAlert className="w-5 h-5" /> },
+  { id: 'scam', label: 'Scam', icon: <BadgeAlert className="w-5 h-5" /> },
+  { id: 'misrepresentation', label: 'Misrepresentation', icon: <UserX className="w-5 h-5" /> },
+  { id: 'hate', label: 'Hate', icon: <Ban className="w-5 h-5" /> },
+  { id: 'off-platform-coercion', label: 'Off-platform coercion', icon: <Link2Off className="w-5 h-5" /> },
   { id: 'other', label: 'Other', icon: <Flag className="w-5 h-5" /> },
 ];
 
