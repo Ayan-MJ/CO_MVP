@@ -55,10 +55,10 @@ export function SoftPaywallScreen({ onBack, onSubscribe, onSkip }: SoftPaywallSc
                 </div>
                 <div>
                   <p className="text-[var(--text-callout)] text-text-primary font-medium mb-0.5">
-                    Unlimited messaging
+                    Voice-first coordination tools
                   </p>
                   <p className="text-[var(--text-footnote)] text-text-muted">
-                    Connect with all your matches without limits
+                    Curated conversations and guided prompts to keep every intro intentional
                   </p>
                 </div>
               </div>
