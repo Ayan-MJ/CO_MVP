@@ -129,48 +129,60 @@ export function VoiceSchedulingScreen({
             </p>
             
             <div className="space-y-3">
-              {proposedSlots.map((slot) => (
-                <button
-                  key={slot.id}
-                  onClick={() => setSelectedSlotId(slot.id)}
-                  className={`w-full p-4 rounded-[var(--radius-lg)] border transition-all ${
-                    selectedSlotId === slot.id
-                      ? 'border-accent bg-accent/10'
-                      : 'border-border-primary bg-surface hover:border-accent/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        selectedSlotId === slot.id
-                          ? 'bg-accent text-white'
-                          : 'bg-background-secondary text-text-muted'
-                      }`}
-                    >
-                      <Calendar className="w-5 h-5" />
+              {proposedSlots.map((slot, index) => {
+                const proposerLabel =
+                  index % 2 === 0 ? 'Your proposed times' : 'Their proposed times';
+                const isSelected = selectedSlotId === slot.id;
+
+                return (
+                  <button
+                    key={slot.id}
+                    onClick={() => setSelectedSlotId(slot.id)}
+                    className={`w-full p-4 rounded-[var(--radius-lg)] border transition-all ${
+                      isSelected
+                        ? 'border-accent bg-accent/10'
+                        : 'border-border-primary bg-surface hover:border-accent/50'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          isSelected
+                            ? 'bg-accent text-white'
+                            : 'bg-background-secondary text-text-muted'
+                        }`}
+                      >
+                        <Calendar className="w-5 h-5" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-[var(--text-body)] font-semibold text-text-primary">
+                            {slot.dayLabel}
+                          </p>
+                          <span className="text-[var(--text-footnote)] text-text-muted px-2 py-0.5 rounded-full border border-border-primary bg-background-secondary">
+                            {proposerLabel}
+                          </span>
+                          {isSelected && (
+                            <span className="text-[var(--text-footnote)] text-accent px-2 py-0.5 rounded-full border border-accent/40 bg-accent/10">
+                              Pending confirmation
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[var(--text-callout)] text-text-secondary">
+                          {slot.timeLabel}
+                        </p>
+                      </div>
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          isSelected ? 'border-accent bg-accent' : 'border-border-primary'
+                        }`}
+                      >
+                        {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                      </div>
                     </div>
-                    <div className="flex-1 text-left">
-                      <p className="text-[var(--text-body)] font-semibold text-text-primary">
-                        {slot.dayLabel}
-                      </p>
-                      <p className="text-[var(--text-callout)] text-text-secondary">
-                        {slot.timeLabel}
-                      </p>
-                    </div>
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedSlotId === slot.id
-                          ? 'border-accent bg-accent'
-                          : 'border-border-primary'
-                      }`}
-                    >
-                      {selectedSlotId === slot.id && (
-                        <div className="w-2 h-2 rounded-full bg-white" />
-                      )}
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
