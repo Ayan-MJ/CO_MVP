@@ -53,6 +53,7 @@ import { SafetyCenterScreen } from '@/app/screens/SafetyCenterScreen';
 import { LegalScreen } from '@/app/screens/LegalScreen';
 import { TermsOfServiceScreen } from '@/app/screens/TermsOfServiceScreen';
 import { PrivacyPolicyScreen } from '@/app/screens/PrivacyPolicyScreen';
+import { submitVerificationPhoto } from '@/app/services/verificationService';
 
 type OnboardingStep =
   | 'welcome'
@@ -120,8 +121,7 @@ export default function App() {
   const [mainAppTab, setMainAppTab] = React.useState('introductions'); // For main app bottom nav
   const [locationData, setLocationData] = React.useState<LocationData | null>(null);
 
-  // Simulate verification result - in real app, this would be from API
-  const [verificationResult] = React.useState<'success' | 'failure' | 'manual-review'>('success');
+  const [verificationError, setVerificationError] = React.useState<string | null>(null);
 
   // Profile setup data
   const [profilePhotos, setProfilePhotos] = React.useState<any[]>([]);
@@ -160,8 +160,7 @@ export default function App() {
     }
   };
 
-  const handleWaitlistCodeSubmit = (code: string) => {
-    console.log('Invite code submitted:', code);
+  const handleWaitlistCodeSubmit = (_code: string) => {
     setCurrentStep('otp-login');
   };
 
@@ -173,19 +172,28 @@ export default function App() {
     setCurrentStep('verification-capture');
   };
 
-  const handlePhotoTaken = (photoData: string) => {
-    console.log('Photo captured:', photoData);
+  const handlePhotoTaken = async (photoData: string) => {
+    setVerificationError(null);
     setCurrentStep('verification-in-progress');
-    
-    setTimeout(() => {
-      if (verificationResult === 'success') {
+
+    try {
+      const result = await submitVerificationPhoto(photoData);
+
+      if (result.status === 'success') {
         setCurrentStep('verification-success');
-      } else if (verificationResult === 'failure') {
+      } else if (result.status === 'failure') {
+        setVerificationError(result.message ?? 'We could not verify your photo. Please try again.');
         setCurrentStep('verification-failure');
       } else {
         setCurrentStep('verification-manual-review');
       }
-    }, 3000);
+    } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : 'Verification failed. Please try again.';
+      setVerificationError(message);
+      setCurrentStep('verification-failure');
+    }
   };
 
   const handleVerificationSuccess = () => {
@@ -193,6 +201,7 @@ export default function App() {
   };
 
   const handleVerificationRetry = () => {
+    setVerificationError(null);
     setCurrentStep('verification-intro');
   };
 
@@ -317,7 +326,8 @@ export default function App() {
             {currentStep === 'verification-failure' && (
               <VerificationFailureScreen
                 onRetry={handleVerificationRetry}
-                onSupport={() => console.log('Contact support')}
+                onSupport={() => {}}
+                errorMessage={verificationError ?? undefined}
               />
             )}
 
@@ -474,7 +484,6 @@ export default function App() {
                 intro={selectedIntro}
                 onBack={() => setCurrentStep('intro-home')}
                 onAccept={(introId) => {
-                  console.log('Accepted intro:', introId);
                   setCurrentStep('intro-match');
                 }}
                 onDecline={(introId) => {
@@ -488,7 +497,6 @@ export default function App() {
                 intro={selectedIntro}
                 onBack={() => setCurrentStep('intro-detail')}
                 onStartConversation={() => {
-                  console.log('Starting conversation with:', selectedIntro.name);
                   // In real app, would navigate to messages
                   setCurrentStep('intro-home');
                 }}
@@ -500,7 +508,6 @@ export default function App() {
                 introName={selectedIntro.name}
                 onBack={() => setCurrentStep('intro-detail')}
                 onConfirm={(reason) => {
-                  console.log('Declined with reason:', reason);
                   setCurrentStep('intro-home');
                 }}
               />
@@ -610,7 +617,6 @@ export default function App() {
                   setCurrentStep('match-detail');
                 }}
                 onAddToCalendar={() => {
-                  console.log('Add to calendar clicked');
                 }}
               />
             )}
@@ -621,7 +627,6 @@ export default function App() {
                 matchPhoto={selectedMatch.photo}
                 onBack={() => setCurrentStep('match-detail')}
                 onSubmitFeedback={(rating, notes) => {
-                  console.log('Feedback submitted:', rating, notes);
                   // If positive feedback, unlock date planning
                   if (rating === 'great' || rating === 'good') {
                     setCurrentStep('match-date-planning');
@@ -639,11 +644,9 @@ export default function App() {
                 matchPhoto={selectedMatch.photo}
                 onBack={() => setCurrentStep('match-detail')}
                 onSelectDateIdea={(idea) => {
-                  console.log('Selected date idea:', idea);
                   setCurrentStep('matches-list');
                 }}
                 onProposeCustomDate={() => {
-                  console.log('Propose custom date');
                   setCurrentStep('matches-list');
                 }}
               />
@@ -706,7 +709,6 @@ export default function App() {
                 type={showSafetySheet}
                 onClose={() => setShowSafetySheet(null)}
                 onConfirm={(reason) => {
-                  console.log(`${showSafetySheet} action:`, reason);
                   setShowSafetySheet(null);
                   if (showSafetySheet === 'block') {
                     setCurrentStep('matches-list');
@@ -781,7 +783,6 @@ export default function App() {
                 context="intro"
                 onBack={() => setCurrentStep('intro-home')}
                 onAccept={() => {
-                  console.log('Accepted intro from profile detail');
                   setCurrentStep('intro-match');
                 }}
                 onDecline={() => setCurrentStep('intro-decline')}
@@ -883,7 +884,6 @@ export default function App() {
                   if (targetStep) setCurrentStep(targetStep);
                 }}
                 onLogout={() => {
-                  console.log('Logged out');
                   setCurrentStep('welcome');
                 }}
                 userInfo={{
@@ -904,8 +904,8 @@ export default function App() {
                   renewalDate: 'February 15, 2026',
                   price: '$29.99/month',
                 }}
-                onRestorePurchases={() => console.log('Restore purchases')}
-                onManageSubscription={() => console.log('Manage via App Store')}
+                onRestorePurchases={() => {}}
+                onManageSubscription={() => {}}
               />
             )}
 
@@ -918,7 +918,7 @@ export default function App() {
                 }}
                 onStartVerification={() => setCurrentStep('verification-capture')}
                 onRetryVerification={() => setCurrentStep('verification-capture')}
-                onContactSupport={() => console.log('Contact support')}
+                onContactSupport={() => {}}
               />
             )}
 
@@ -926,9 +926,8 @@ export default function App() {
               <PrivacyScreen
                 onBack={() => setCurrentStep('settings-home')}
                 onNavigateToBlockList={() => setCurrentStep('settings-block-list')}
-                onRequestDataDownload={() => console.log('Data download requested')}
+                onRequestDataDownload={() => {}}
                 onDeleteAccount={() => {
-                  console.log('Account deleted');
                   setCurrentStep('welcome');
                 }}
                 blockedUsersCount={2}
@@ -954,7 +953,7 @@ export default function App() {
                     blockedDate: '1 week ago',
                   },
                 ]}
-                onUnblockUser={(userId) => console.log('Unblocked:', userId)}
+                onUnblockUser={() => {}}
               />
             )}
 
