@@ -18,13 +18,57 @@ export function WaitlistScreen({ city, neighborhood, position, onBack, onSubmitC
   const [referralLink] = React.useState('cohort.app/r/abc123');
   const [copied, setCopied] = React.useState(false);
   const [codeError, setCodeError] = React.useState('');
+  const [copyBanner, setCopyBanner] = React.useState<{
+    message: string;
+    type: 'info' | 'error';
+    action?: {
+      label: string;
+      onClick: () => void;
+    };
+  } | null>(null);
+  const referralLinkRef = React.useRef<HTMLSpanElement | null>(null);
 
   const estimatedWait = Math.ceil(position / 10); // weeks
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(referralLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  React.useEffect(() => {
+    if (!copyBanner) {
+      return;
+    }
+    const timer = setTimeout(() => setCopyBanner(null), 4000);
+    return () => clearTimeout(timer);
+  }, [copyBanner]);
+
+  const selectReferralLink = () => {
+    if (!referralLinkRef.current) {
+      return;
+    }
+    const selection = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(referralLinkRef.current);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(referralLink);
+      setCopied(true);
+      setCopyBanner({ message: 'Referral link copied to clipboard.', type: 'info' });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      selectReferralLink();
+      setCopied(false);
+      setCopyBanner({
+        message: 'Unable to copy automatically. Select the link and press ⌘/Ctrl+C.',
+        type: 'error',
+        action: {
+          label: 'Copy manually',
+          onClick: () => {
+            window.prompt('Copy your referral link', referralLink);
+          },
+        },
+      });
+    }
   };
 
   const handleSubmitCode = () => {
@@ -161,7 +205,7 @@ export function WaitlistScreen({ city, neighborhood, position, onBack, onSubmitC
           </p>
           <div className="flex gap-2">
             <div className="flex-1 h-12 px-4 rounded-[var(--radius-sm)] bg-surface border border-divider flex items-center">
-              <span className="text-[var(--text-callout)] text-text-primary truncate">
+              <span ref={referralLinkRef} className="text-[var(--text-callout)] text-text-primary truncate">
                 {referralLink}
               </span>
             </div>
@@ -185,10 +229,15 @@ export function WaitlistScreen({ city, neighborhood, position, onBack, onSubmitC
         </div>
 
         {/* Info Banner */}
-        <Banner
-          message="We'll email you when you're off the waitlist"
-          type="info"
-        />
+        {copyBanner && (
+          <Banner
+            message={copyBanner.message}
+            type={copyBanner.type}
+            action={copyBanner.action}
+            onDismiss={() => setCopyBanner(null)}
+          />
+        )}
+        <Banner message="We'll email you when you're off the waitlist" type="info" />
       </div>
     </div>
   );
